@@ -14,6 +14,7 @@
   
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 12px 24px rgba(0, 107, 95, 0.15);
+  --shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -29,6 +30,59 @@ body {
   max-width: 1024px;
   margin: 0 auto;
   padding: 40px 32px;
+}
+
+/* Header & Status Layout */
+.app-header {
+  margin-bottom: 32px;
+}
+
+.greeting-container h2 {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.time-display {
+  font-size: 20px;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Connected State Indicator */
+.connected-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #E6F4F1;
+  color: var(--accent-color);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--accent-color);
+  border-radius: 50%;
+  box-shadow: 0 0 0 rgba(0, 107, 95, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 107, 95, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(0, 107, 95, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 107, 95, 0); }
 }
 
 /* Navigation Filters */
@@ -50,12 +104,19 @@ body {
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.filter-pill:hover:not(.active) {
+  background-color: var(--badge-bg-inactive);
+  transform: translateY(-2px);
 }
 
 .filter-pill.active {
   background-color: var(--text-main);
   color: #FFFFFF;
   border-color: var(--text-main);
+  box-shadow: var(--shadow-sm);
 }
 
 /* AI Banner */
@@ -70,13 +131,20 @@ body {
   gap: 20px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.ai-banner:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--card-border-inactive);
 }
 
 .ai-text { display: flex; flex-direction: column; }
 .ai-text strong { font-size: 20px; color: var(--text-main); margin-bottom: 4px; }
 .ai-text span { font-size: 18px; color: var(--text-muted); }
 
-/* Device Grid (Tablet Optimized) */
+/* Device Grid */
 .device-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -93,7 +161,12 @@ body {
   gap: 24px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+}
+
+.device-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
 }
 
 .card-main {
@@ -111,6 +184,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 24px;
+  transition: all 0.3s ease;
 }
 
 .card-info {
@@ -139,9 +213,10 @@ body {
   font-size: 16px;
   font-weight: 800;
   width: max-content;
+  transition: all 0.3s ease;
 }
 
-/* Active State Colors (Teal) */
+/* Active State Colors */
 .device-card.active {
   background-color: var(--card-bg-active);
   border-color: var(--card-border-active);
@@ -157,7 +232,7 @@ body {
   color: #FFFFFF;
 }
 
-/* Expanding Temperature Controls */
+/* Expanding Temperature Controls (Centered) */
 .card-expanded {
   border-top: 2px solid var(--card-border-active);
   padding-top: 24px;
@@ -172,11 +247,25 @@ body {
   border-radius: 50%;
   background-color: #FFFFFF;
   border: none;
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 500;
   color: var(--text-main);
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;         /* Perfectly centers the + and - */
+  align-items: center;   /* Vertical alignment */
+  justify-content: center; /* Horizontal alignment */
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.temp-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.temp-btn:active {
+  transform: scale(0.95);
 }
 
 .temp-display {
@@ -212,4 +301,10 @@ body {
   font-size: 18px;
   font-weight: 800;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.undo-button:hover {
+  background-color: var(--badge-bg-inactive);
+  transform: scale(1.05);
 }
