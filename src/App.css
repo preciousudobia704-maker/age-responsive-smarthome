@@ -1,4 +1,4 @@
-/* Premium Cream & Teal Design System */
+/* Premium Cream, Teal & Terracotta Design System */
 :root {
   --bg-color: #F9F6F0;
   --text-main: #36312D;
@@ -12,17 +12,30 @@
   --card-border-active: #A0D4CD;
   --accent-color: #006B5F;
   
+  
+  --filter-bg-active: #C87965;
+  --filter-border-active: #B56754;
+  
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-lg: 0 12px 24px rgba(0, 107, 95, 0.15);
   --shadow-hover: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+
+#root, html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: block; 
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 body {
   background-color: var(--bg-color);
   color: var(--text-main);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  margin: 0;
-  padding: 0;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -30,6 +43,7 @@ body {
   max-width: 1024px;
   margin: 0 auto;
   padding: 40px 32px;
+  min-height: 100vh;
 }
 
 /* Header & Status Layout */
@@ -105,6 +119,8 @@ body {
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
+  outline: none; 
+  -webkit-tap-highlight-color: transparent;
 }
 
 .filter-pill:hover:not(.active) {
@@ -112,11 +128,12 @@ body {
   transform: translateY(-2px);
 }
 
+/* New Active Filter Styling */
 .filter-pill.active {
-  background-color: var(--text-main);
+  background-color: var(--filter-bg-active);
   color: #FFFFFF;
-  border-color: var(--text-main);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--filter-border-active);
+  box-shadow: 0 4px 12px rgba(200, 121, 101, 0.25);
 }
 
 /* AI Banner */
@@ -132,6 +149,8 @@ body {
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .ai-banner:hover {
@@ -149,6 +168,8 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+  align-content: start; 
+  align-items: start;
 }
 
 .device-card {
@@ -162,6 +183,8 @@ body {
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .device-card:hover {
@@ -232,7 +255,7 @@ body {
   color: #FFFFFF;
 }
 
-/* Expanding Temperature Controls (Centered) */
+/* Expanding Temperature Controls */
 .card-expanded {
   border-top: 2px solid var(--card-border-active);
   padding-top: 24px;
@@ -252,11 +275,13 @@ body {
   color: var(--text-main);
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  display: flex;         /* Perfectly centers the + and - */
-  align-items: center;   /* Vertical alignment */
-  justify-content: center; /* Horizontal alignment */
+  display: flex;         
+  align-items: center;   
+  justify-content: center; 
   line-height: 1;
   transition: all 0.2s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .temp-btn:hover {
@@ -302,6 +327,8 @@ body {
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .undo-button:hover {
