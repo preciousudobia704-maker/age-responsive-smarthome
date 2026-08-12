@@ -1,19 +1,19 @@
-/* Clean, Accessible, Premium Design System */
+/* Premium Cream & Teal Design System */
 :root {
-  --bg-color: #F4F7FA;
-  --text-main: #1A202C;
-  --text-muted: #718096;
+  --bg-color: #F9F6F0;
+  --text-main: #36312D;
+  --text-muted: #8A8581;
   
   --card-bg-inactive: #FFFFFF;
-  --card-border-inactive: #CBD5E0;
+  --card-border-inactive: #E8E5DF;
+  --badge-bg-inactive: #F2EFEA;
   
-  --card-bg-active: #1A202C;
-  --card-text-active: #FFFFFF;
-  --card-border-active: #1A202C;
+  --card-bg-active: #C7EBE5;
+  --card-border-active: #A0D4CD;
+  --accent-color: #006B5F;
   
-  --accent-color: #3182CE;
-  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px rgba(0, 107, 95, 0.15);
 }
 
 body {
@@ -26,167 +26,163 @@ body {
 }
 
 .app-wrapper {
-  max-width: 1000px;
+  max-width: 1024px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding: 40px 32px;
 }
 
-/* Header & Typography */
-.app-header {
+/* Navigation Filters */
+.filter-scroll {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 40px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #E2E8F0;
+  gap: 12px;
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
-.greeting-container h2 {
-  font-size: 36px;
-  font-weight: 800;
-  margin: 0 0 8px 0;
-  letter-spacing: -0.5px;
-}
-
-.time-display {
-  font-size: 20px;
-  color: var(--text-muted);
-  margin: 0;
-  font-weight: 500;
-}
-
-.settings-toggle {
-  background-color: transparent;
-  color: var(--accent-color);
-  border: 2px solid var(--accent-color);
+.filter-pill {
+  background-color: #FFFFFF;
+  color: var(--text-main);
+  border: 1px solid var(--card-border-inactive);
   padding: 12px 24px;
   border-radius: 30px;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  white-space: nowrap;
 }
 
-.settings-toggle:active {
-  background-color: var(--accent-color);
+.filter-pill.active {
+  background-color: var(--text-main);
   color: #FFFFFF;
+  border-color: var(--text-main);
 }
 
 /* AI Banner */
 .ai-banner {
-  background-color: #EBF8FF;
-  border: 2px solid #90CDF4;
-  border-radius: 16px;
+  background-color: #FFFFFF;
+  border: 2px solid #F2EFEA;
+  border-radius: 24px;
   padding: 24px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   display: flex;
   align-items: center;
   gap: 20px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.2s;
 }
 
-.ai-banner:active {
-  transform: scale(0.98);
-}
+.ai-text { display: flex; flex-direction: column; }
+.ai-text strong { font-size: 20px; color: var(--text-main); margin-bottom: 4px; }
+.ai-text span { font-size: 18px; color: var(--text-muted); }
 
-.ai-icon {
-  font-size: 32px;
-}
-
-.ai-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.ai-text strong {
-  font-size: 22px;
-  color: #2B6CB0;
-  margin-bottom: 4px;
-}
-
-.ai-text span {
-  font-size: 20px;
-  color: #2C5282;
-}
-
-/* Device Controls - Fitts's Law Application */
-.section-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-muted);
-  margin-bottom: 24px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
+/* Device Grid (Tablet Optimized) */
 .device-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
 }
 
 .device-card {
+  background-color: var(--card-bg-inactive);
+  border: 2px solid var(--card-border-inactive);
+  border-radius: 32px;
+  padding: 24px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 32px 40px;
-  border-radius: 20px;
+  flex-direction: column;
+  gap: 24px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
   box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
 }
 
-/* Simple Mode Scaling */
-.simple-mode .device-card {
-  padding: 40px;
-  gap: 30px;
+.card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
-.simple-mode .device-title {
-  font-size: 32px;
-}
-.simple-mode .device-status {
-  font-size: 32px;
+
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--badge-bg-inactive);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
 }
 
 .card-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .device-title {
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.device-category {
-  font-size: 18px;
-  font-weight: 600;
-  opacity: 0.7;
-}
-
-.device-status {
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
-  letter-spacing: 1px;
-}
-
-/* High Contrast Monochromatic States */
-.device-card.inactive {
-  background-color: var(--card-bg-inactive);
-  border: 3px solid var(--card-border-inactive);
   color: var(--text-main);
 }
 
+.device-category {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.status-badge {
+  background-color: var(--badge-bg-inactive);
+  color: var(--text-main);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 800;
+  width: max-content;
+}
+
+/* Active State Colors (Teal) */
 .device-card.active {
   background-color: var(--card-bg-active);
-  border: 3px solid var(--card-border-active);
-  color: var(--card-text-active);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--card-border-active);
+}
+
+.device-card.active .card-icon {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+}
+
+.device-card.active .status-badge {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+}
+
+/* Expanding Temperature Controls */
+.card-expanded {
+  border-top: 2px solid var(--card-border-active);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.temp-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  border: none;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.temp-display {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-main);
 }
 
 /* Graceful Error Recovery Toast */
@@ -205,8 +201,6 @@ body {
   font-size: 20px;
   box-shadow: var(--shadow-lg);
   z-index: 1000;
-  width: max-content;
-  max-width: 90%;
 }
 
 .undo-button {
@@ -216,6 +210,6 @@ body {
   padding: 12px 28px;
   border-radius: 30px;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
 }
