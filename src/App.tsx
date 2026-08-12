@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
-import './App.css'; 
+import './App.css';
 
 export default function AgeResponsiveSmartHome() {
   // --------------------------------------------------------
-  // 1. DATA LAYER (Local Storage Initialization)
+  // DATA LAYER
   // --------------------------------------------------------
   const [deviceStates, setDeviceStates] = useState(() => {
     const savedStates = localStorage.getItem('smartHomeStates');
@@ -15,47 +15,58 @@ export default function AgeResponsiveSmartHome() {
     };
   });
 
+  const [settings, setSettings] = useState(() => {
+    const savedSettings = localStorage.getItem('smartHomeSettings');
+    return savedSettings ? JSON.parse(savedSettings) : {
+      simpleModeActive: true
+    };
+  });
+
   const [lastAction, setLastAction] = useState(null);
   const [showUndo, setShowUndo] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const [habitLog, setHabitLog] = useState(() => {
     const savedLog = localStorage.getItem('smartHomeHabits');
     return savedLog ? JSON.parse(savedLog) : [];
   });
 
-  // Sync state changes directly to local storage for offline persistence
+  // Keep the clock updated for the greeting
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('smartHomeStates', JSON.stringify(deviceStates));
   }, [deviceStates]);
+
+  useEffect(() => {
+    localStorage.setItem('smartHomeSettings', JSON.stringify(settings));
+  }, [settings]);
 
   useEffect(() => {
     localStorage.setItem('smartHomeHabits', JSON.stringify(habitLog));
   }, [habitLog]);
 
   // --------------------------------------------------------
-  // 2. LOGIC LAYER (Controllers & Error Recovery)
+  // LOGIC LAYER
   // --------------------------------------------------------
   const toggleDevice = (deviceKey, deviceName) => {
     const newState = !deviceStates[deviceKey];
-
-    // Save current state to the Undo stack
     const previousState = { ...deviceStates };
-    setLastAction({ previousState, deviceName });
     
-    // Update to new device state
+    setLastAction({ previousState, deviceName });
     setDeviceStates(prev => ({ ...prev, [deviceKey]: newState }));
 
-    // Dynamic Dataset Generation
     const newLogEntry = {
       device: deviceName,
       deviceKey: deviceKey,
       state: newState ? "ON" : "OFF",
       time: new Date().toISOString() 
     };
-    
     setHabitLog(prevLog => [...prevLog, newLogEntry]);
 
-    // Trigger the Graceful Error Recovery Toast
     setShowUndo(true);
     setTimeout(() => {
       setShowUndo(false);
@@ -71,80 +82,119 @@ export default function AgeResponsiveSmartHome() {
     }
   };
 
+  const toggleSimpleMode = () => {
+    setSettings(prev => ({ ...prev, simpleModeActive: !prev.simpleModeActive }));
+  };
+
   // --------------------------------------------------------
-  // 3. PREDICTIVE AI MODULE (Localized Rule-Based Heuristics)
+  // PREDICTIVE AI MODULE 
   // --------------------------------------------------------
   const getPredictiveSuggestion = () => {
-    const currentHour = new Date().getHours();
+    const currentHour = currentTime.getHours();
     
-    // Scan the habitLog for any device turned ON around this time previously
     const learnedHabit = habitLog.find(log => {
       const logHour = new Date(log.time).getHours();
       return log.state === "ON" && logHour === currentHour;
     });
 
-    // If a habit is found, and that device is currently OFF, suggest it
     if (learnedHabit && !deviceStates[learnedHabit.deviceKey]) {
       return {
-        message: `You usually turn on the ${learnedHabit.device} around this time. Turn it on?`,
+        message: `You typically use the ${learnedHabit.device} at this time.`,
         action: () => toggleDevice(learnedHabit.deviceKey, learnedHabit.device)
       };
     }
-    
     return null; 
   };
 
   const aiSuggestion = getPredictiveSuggestion();
 
+  // Dynamic Greeting Logic
+  const hour = currentTime.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
   // --------------------------------------------------------
-  // 4. PRESENTATION LAYER (High-Contrast UI)
+  // PRESENTATION LAYER 
   // --------------------------------------------------------
   return (
-    <div className="app-container">
+    <div className={`app-wrapper ${settings.simpleModeActive ? 'simple-mode' : 'advanced-mode'}`}>
+      
+      {/* Top Header & Settings */}
       <header className="app-header">
-        <h1>My Home Dashboard</h1>
+        <div className="greeting-container">
+          <h2>{greeting}.</h2>
+          <p className="time-display">It is currently {timeString}.</p>
+        </div>
+        <button className="settings-toggle" onClick={toggleSimpleMode}>
+          {settings.simpleModeActive ? 'Standard View' : 'Simple View'}
+        </button>
       </header>
 
-      {/* Predictive UI Banner */}
-      {aiSuggestion && (
-        <div className="ai-suggestion-banner" onClick={aiSuggestion.action}>
-          ✨ <strong>Suggestion:</strong> {aiSuggestion.message}
+      <main className="dashboard-content">
+        {/* Predictive AI Banner */}
+        {aiSuggestion && (
+          <div className="ai-banner" onClick={aiSuggestion.action}>
+            <div className="ai-icon">✨</div>
+            <div className="ai-text">
+              <strong>Suggestion</strong>
+              <span>{aiSuggestion.message} Tap to turn on.</span>
+            </div>
+          </div>
+        )}
+
+        {/* Section Headers organize the space */}
+        <h3 className="section-title">Home Controls</h3>
+        
+        <div className="device-grid">
+          {/* Lighting */}
+          <button 
+            className={`device-card ${deviceStates.livingRoomLight ? 'active' : 'inactive'}`}
+            onClick={() => toggleDevice('livingRoomLight', 'Living Room Light')}
+          >
+            <div className="card-info">
+              <span className="device-title">Living Room Light</span>
+              <span className="device-category">Lighting</span>
+            </div>
+            <span className="device-status">
+              {deviceStates.livingRoomLight ? 'ON' : 'OFF'}
+            </span>
+          </button>
+
+          {/* Climate */}
+          <button 
+            className={`device-card ${deviceStates.bedroomFan ? 'active' : 'inactive'}`}
+            onClick={() => toggleDevice('bedroomFan', 'Bedroom Fan')}
+          >
+            <div className="card-info">
+              <span className="device-title">Bedroom Fan</span>
+              <span className="device-category">Climate</span>
+            </div>
+            <span className="device-status">
+              {deviceStates.bedroomFan ? 'ON' : 'OFF'}
+            </span>
+          </button>
+
+          {/* Security */}
+          <button 
+            className={`device-card ${deviceStates.frontDoorLock ? 'active' : 'inactive'}`}
+            onClick={() => toggleDevice('frontDoorLock', 'Front Door Lock')}
+          >
+            <div className="card-info">
+              <span className="device-title">Front Door</span>
+              <span className="device-category">Security</span>
+            </div>
+            <span className="device-status">
+              {deviceStates.frontDoorLock ? 'UNLOCKED' : 'LOCKED'}
+            </span>
+          </button>
         </div>
-      )}
-
-      <main className="device-grid">
-        {/* Device Control Card: Living Room Light */}
-        <button 
-          className={`device-card ${deviceStates.livingRoomLight ? 'active' : 'inactive'}`}
-          onClick={() => toggleDevice('livingRoomLight', 'Living Room Light')}
-          aria-pressed={deviceStates.livingRoomLight}
-        >
-          <span className="device-title">Living Room Light</span>
-          <span className="device-status">
-            {deviceStates.livingRoomLight ? 'ON' : 'OFF'}
-          </span>
-        </button>
-
-        {/* Device Control Card: Front Door Lock */}
-        <button 
-          className={`device-card ${deviceStates.frontDoorLock ? 'active' : 'inactive'}`}
-          onClick={() => toggleDevice('frontDoorLock', 'Front Door Lock')}
-          aria-pressed={deviceStates.frontDoorLock}
-        >
-          <span className="device-title">Front Door Lock</span>
-          <span className="device-status">
-            {deviceStates.frontDoorLock ? 'UNLOCKED' : 'LOCKED'}
-          </span>
-        </button>
       </main>
 
-      {/* Graceful Error Recovery: Undo Toast */}
+      {/* Graceful Error Recovery */}
       {showUndo && (
         <div className="undo-toast">
-          <p>{lastAction?.deviceName} was changed.</p>
-          <button className="undo-button" onClick={executeUndo}>
-            Undo
-          </button>
+          <span><strong>{lastAction?.deviceName}</strong> was changed.</span>
+          <button className="undo-button" onClick={executeUndo}>Undo</button>
         </div>
       )}
     </div>
