@@ -39,10 +39,8 @@ export default function AgeResponsiveSmartHome() {
   const [showUndo, setShowUndo] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // New state for category filtering
   const [activeFilter, setActiveFilter] = useState('Everything');
 
-  // Sync data instantly to local storage
   useEffect(() => {
     localStorage.setItem('smartHomeStates', JSON.stringify(deviceStates));
   }, [deviceStates]);
@@ -55,12 +53,11 @@ export default function AgeResponsiveSmartHome() {
     localStorage.setItem('smartHomeHabits', JSON.stringify(habitLog));
   }, [habitLog]);
 
-  // Keep the clock updated for the greeting
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
-
+  
   // =========================================================================
   //  LAYER 2: THE LOGIC LAYER (Device Control, Audio & Error Recovery)
   //  This executes the core actions. When a user taps 
@@ -156,11 +153,10 @@ export default function AgeResponsiveSmartHome() {
 
   const aiSuggestion = getPredictiveSuggestion();
 
-  // Dynamic Greeting Logic
   const hour = currentTime.getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
+  
   // =========================================================================
   //  LAYER 4: THE PRESENTATION LAYER (Age-Responsive Interface)
   //  This renders the visual UI based on our accessibility 
@@ -168,10 +164,9 @@ export default function AgeResponsiveSmartHome() {
   // the Gestalt Principle of Proximity by flattening the navigation into a 
   // single, scroll-free layout, completely eliminating deep menus.
   // =========================================================================
- return (
+return (
     <div className="app-wrapper">
       
-      {/* Header with Greeting, Time, and Connected State */}
       <header className="app-header">
         <div className="greeting-container">
           <h2>{greeting}.</h2>
@@ -185,7 +180,6 @@ export default function AgeResponsiveSmartHome() {
         </div>
       </header>
 
-      {/* Category Filters */}
       <nav className="filter-scroll">
         {['Everything', 'Living Room', 'Bedroom', 'Kitchen', 'Front Door'].map(category => (
           <button 
@@ -200,7 +194,6 @@ export default function AgeResponsiveSmartHome() {
 
       <main className="dashboard-content">
         
-        {/* Predictive AI Banner */}
         {aiSuggestion && activeFilter === 'Everything' && (
           <div className="ai-banner" onClick={aiSuggestion.action}>
             <div className="ai-icon">✨</div>
@@ -213,12 +206,12 @@ export default function AgeResponsiveSmartHome() {
         
         <div className="device-grid">
           
-          {/* Living Room Lights */}
+          {/* Living Room Lamp */}
           {(activeFilter === 'Everything' || activeFilter === 'Living Room') && (
-            <div className={`device-card ${deviceStates.livingRoomLamp ? 'active' : 'inactive'}`} onClick={() => toggleDevice('livingRoomLamp', 'Living Room Lights')}>
+            <div className={`device-card ${deviceStates.livingRoomLamp ? 'active' : 'inactive'}`} onClick={() => toggleDevice('livingRoomLamp', 'Living Room Lamp')}>
               <div className="card-icon">💡</div>
               <div className="card-info">
-                <span className="device-title">Living Room Lights</span>
+                <span className="device-title">Living Room Lamp</span>
                 <span className="device-category">Living Room</span>
               </div>
               <div className="status-badge">{deviceStates.livingRoomLamp ? 'ON' : 'OFF'}</div>
@@ -259,10 +252,10 @@ export default function AgeResponsiveSmartHome() {
             </div>
           )}
 
-          {/* Bedroom Lights */}
+          {/* Bedroom Lights (Updated Icon) */}
           {(activeFilter === 'Everything' || activeFilter === 'Bedroom') && (
             <div className={`device-card ${deviceStates.bedsideLamp ? 'active' : 'inactive'}`} onClick={() => toggleDevice('bedsideLamp', 'Bedroom Lights')}>
-              <div className="card-icon">🪔</div>
+              <div className="card-icon">💡</div>
               <div className="card-info">
                 <span className="device-title">Bedroom Lights</span>
                 <span className="device-category">Bedroom</span>
@@ -271,10 +264,10 @@ export default function AgeResponsiveSmartHome() {
             </div>
           )}
 
-          {/* Bedroom Fan */}
+          {/* Bedroom Fan (Updated Icon) */}
           {(activeFilter === 'Everything' || activeFilter === 'Bedroom') && (
             <div className={`device-card ${deviceStates.bedroomFan ? 'active' : 'inactive'}`} onClick={() => toggleDevice('bedroomFan', 'Bedroom Fan')}>
-              <div className="card-icon">🌬️</div>
+              <div className="card-icon">🌀</div>
               <div className="card-info">
                 <span className="device-title">Bedroom Fan</span>
                 <span className="device-category">Bedroom</span>
@@ -322,7 +315,6 @@ export default function AgeResponsiveSmartHome() {
         </div>
       </main>
 
-      {/* Graceful Error Recovery */}
       {showUndo && (
         <div className="undo-toast">
           <span><strong>{lastAction?.deviceName}</strong> was changed.</span>
