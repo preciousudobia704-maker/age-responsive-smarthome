@@ -87,25 +87,50 @@ export default function AgeResponsiveSmartHome() {
   };
 
   // --------------------------------------------------------
-  // PREDICTIVE AI MODULE 
+  // PREDICTIVE AI MODULE (Advanced Pattern Recognition)
   // --------------------------------------------------------
   const getPredictiveSuggestion = () => {
     const currentHour = currentTime.getHours();
     
-    const learnedHabit = habitLog.find(log => {
+    // 1. Find all actions (ON or OFF) that happened in this hour historically
+    const habitsThisHour = habitLog.filter(log => {
       const logHour = new Date(log.time).getHours();
-      return log.state === "ON" && logHour === currentHour;
+      return logHour === currentHour;
     });
 
-    if (learnedHabit && !deviceStates[learnedHabit.deviceKey]) {
+    if (habitsThisHour.length === 0) return null;
+
+    // 2. Count them to find the true "pattern" (the most frequent action)
+    const frequency = {};
+    habitsThisHour.forEach(log => {
+      const patternKey = `${log.deviceKey}|${log.state}|${log.device}`;
+      frequency[patternKey] = (frequency[patternKey] || 0) + 1;
+    });
+
+    // 3. Identify the most repeated action for this specific time period
+    const topPattern = Object.keys(frequency).reduce((a, b) => frequency[a] > frequency[b] ? a : b);
+    const [deviceKey, expectedState, deviceName] = topPattern.split('|');
+
+    // 4. Check if the device needs to be changed to match the pattern
+    const isCurrentlyOn = deviceStates[deviceKey];
+    const needsToTurnOn = expectedState === "ON" && !isCurrentlyOn;
+    const needsToTurnOff = expectedState === "OFF" && isCurrentlyOn;
+
+    if (needsToTurnOn || needsToTurnOff) {
+      // Make the phrasing context-aware (lock vs light)
+      let actionWord = expectedState === "ON" ? "turn on" : "turn off";
+      if (deviceKey === 'frontDoorLock') {
+         actionWord = expectedState === "ON" ? "unlock" : "lock";
+      }
+
       return {
-        message: `You typically use the ${learnedHabit.device} at this time.`,
-        action: () => toggleDevice(learnedHabit.deviceKey, learnedHabit.device)
+        message: `You usually ${actionWord} the ${deviceName} around this time.`,
+        action: () => toggleDevice(deviceKey, deviceName)
       };
     }
+    
     return null; 
   };
-
   const aiSuggestion = getPredictiveSuggestion();
 
   // Dynamic Greeting Logic
