@@ -125,7 +125,7 @@ body {
 
 .filter-pill:hover:not(.active) {
   background-color: var(--badge-bg-inactive);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 
