@@ -1,51 +1,192 @@
-/* High Contrast, Age-Responsive Design System */
+/* Clean, Accessible, Premium Design System */
 :root {
-  --bg-color: #121212;
-  --text-primary: #ffffff;
-  --card-inactive: #2a2a2a;
-  --card-active: #ffffff;
-  --text-active: #000000;
-  --touch-padding: 32px;
+  --bg-color: #F4F7FA;
+  --text-main: #1A202C;
+  --text-muted: #718096;
+  
+  --card-bg-inactive: #FFFFFF;
+  --card-border-inactive: #CBD5E0;
+  
+  --card-bg-active: #1A202C;
+  --card-text-active: #FFFFFF;
+  --card-border-active: #1A202C;
+  
+  --accent-color: #3182CE;
+  --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
 }
 
 body {
   background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: "Inter", sans-serif;
+  color: var(--text-main);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Header & Typography */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #E2E8F0;
+}
+
+.greeting-container h2 {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.time-display {
+  font-size: 20px;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.settings-toggle {
+  background-color: transparent;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-toggle:active {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+}
+
+/* AI Banner */
+.ai-banner {
+  background-color: #EBF8FF;
+  border: 2px solid #90CDF4;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
+}
+
+.ai-banner:active {
+  transform: scale(0.98);
+}
+
+.ai-icon {
+  font-size: 32px;
+}
+
+.ai-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-text strong {
+  font-size: 22px;
+  color: #2B6CB0;
+  margin-bottom: 4px;
+}
+
+.ai-text span {
+  font-size: 20px;
+  color: #2C5282;
+}
+
+/* Device Controls - Fitts's Law Application */
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .device-grid {
   display: flex;
   flex-direction: column;
-  gap: 24px; /* Massive spacing to prevent misclicks */
-  margin-top: 40px;
+  gap: 20px;
 }
 
-/* Fitts's Law Application: Massive Touch Targets */
 .device-card {
-  padding: var(--touch-padding);
-  border-radius: 16px;
-  border: 2px solid #444;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 28px; /* High legibility */
-  font-weight: 700;
+  width: 100%;
+  padding: 32px 40px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
 }
 
+/* Simple Mode Scaling */
+.simple-mode .device-card {
+  padding: 40px;
+  gap: 30px;
+}
+.simple-mode .device-title {
+  font-size: 32px;
+}
+.simple-mode .device-status {
+  font-size: 32px;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.device-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.device-category {
+  font-size: 18px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.device-status {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+/* High Contrast Monochromatic States */
 .device-card.inactive {
-  background-color: var(--card-inactive);
-  color: var(--text-primary);
+  background-color: var(--card-bg-inactive);
+  border: 3px solid var(--card-border-inactive);
+  color: var(--text-main);
 }
 
 .device-card.active {
-  background-color: var(--card-active);
-  color: var(--text-active);
-  border-color: #ffffff;
+  background-color: var(--card-bg-active);
+  border: 3px solid var(--card-border-active);
+  color: var(--card-text-active);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Graceful Error Recovery Toast */
@@ -54,42 +195,27 @@ body {
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333333;
-  color: #ffffff;
-  padding: 16px 32px;
+  background-color: var(--text-main);
+  color: #FFFFFF;
+  padding: 20px 32px;
   border-radius: 50px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  font-size: 24px;
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.5);
+  gap: 30px;
+  font-size: 20px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  width: max-content;
+  max-width: 90%;
 }
 
 .undo-button {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #FFFFFF;
+  color: var(--text-main);
   border: none;
-  padding: 12px 24px;
+  padding: 12px 28px;
   border-radius: 30px;
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 700;
   cursor: pointer;
-}
-/* Predictive AI Banner */
-.ai-suggestion-banner {
-  background-color: #ffd700;
-  color: #000000;
-  padding: 16px 20px;
-  border-radius: 12px;
-  margin: 20px 0;
-  font-size: 22px;
-  cursor: pointer;
-  text-align: center;
-  border: 2px solid #ffcc00;
-  box-shadow: 0px 4px 15px rgba(255, 215, 0, 0.2);
-  transition: transform 0.2s ease;
-}
-
-.ai-suggestion-banner:active {
-  transform: scale(0.98);
 }
