@@ -335,3 +335,18 @@ body {
   background-color: var(--badge-bg-inactive);
   transform: scale(1.05);
 }
+/* MASTER OVERRIDE FOR BROWSER FOCUS RINGS */
+button:focus,
+button:active,
+button:focus-visible,
+.filter-pill:focus,
+.filter-pill:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Restore only the custom shadow for the active pill */
+.filter-pill.active:focus,
+.filter-pill.active:focus-visible {
+  box-shadow: 0 4px 12px rgba(200, 121, 101, 0.25) !important;
+}
