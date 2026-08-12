@@ -90,7 +90,7 @@ body {
   background-color: var(--accent-color);
   border-radius: 50%;
   box-shadow: 0 0 0 rgba(0, 107, 95, 0.4);
-  animation: pulse o.5s infinite;
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
@@ -166,7 +166,7 @@ body {
 .device-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  gap: 40px;
   align-content: start; 
   align-items: start;
 }
