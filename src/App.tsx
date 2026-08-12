@@ -3,62 +3,80 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 export default function AgeResponsiveSmartHome() {
-  // --------------------------------------------------------
-  // DATA LAYER
-  // --------------------------------------------------------
+  
+  // =========================================================================
+  //  LAYER 1: THE DATA LAYER (Local Storage & State Management)
+  //  This section replaces a traditional cloud database.
+  // It securely stores the user's device states, temperature preferences, 
+  // and daily habits directly on their physical tablet, ensuring absolute 
+  // data sovereignty and zero-latency performance.
+  // =========================================================================
   const [deviceStates, setDeviceStates] = useState(() => {
     const savedStates = localStorage.getItem('smartHomeStates');
     return savedStates ? JSON.parse(savedStates) : {
-      livingRoomLight: false,
-      bedroomFan: false,
-      frontDoorLock: true,
+      livingRoomLamp: false,
+      television: false,
+      airConditioner: false,
+      bedsideLamp: false,
+      bedroomFan: true, 
+      kitchenLights: false,
+      kettle: false,
+      frontDoor: true,
     };
   });
 
-  const [settings, setSettings] = useState(() => {
-    const savedSettings = localStorage.getItem('smartHomeSettings');
-    return savedSettings ? JSON.parse(savedSettings) : {
-      simpleModeActive: true
-    };
+  const [acTemp, setAcTemp] = useState(() => {
+    const savedTemp = localStorage.getItem('smartHomeTemp');
+    return savedTemp ? parseInt(savedTemp) : 22;
   });
-
-  const [lastAction, setLastAction] = useState(null);
-  const [showUndo, setShowUndo] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
 
   const [habitLog, setHabitLog] = useState(() => {
     const savedLog = localStorage.getItem('smartHomeHabits');
     return savedLog ? JSON.parse(savedLog) : [];
   });
 
-  // Keep the clock updated for the greeting
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, []);
+  const [lastAction, setLastAction] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
 
+  // Sync data instantly to the tablet's local storage
   useEffect(() => {
     localStorage.setItem('smartHomeStates', JSON.stringify(deviceStates));
   }, [deviceStates]);
 
   useEffect(() => {
-    localStorage.setItem('smartHomeSettings', JSON.stringify(settings));
-  }, [settings]);
+    localStorage.setItem('smartHomeTemp', acTemp.toString());
+  }, [acTemp]);
 
   useEffect(() => {
     localStorage.setItem('smartHomeHabits', JSON.stringify(habitLog));
   }, [habitLog]);
 
-  // --------------------------------------------------------
-  // LOGIC LAYER
-  // --------------------------------------------------------
+
+  // =========================================================================
+  //  LAYER 2: THE LOGIC LAYER (Device Control, Audio & Error Recovery)
+  //  This executes the core actions. When a user taps 
+  // a button, this layer instantly updates the UI, triggers an offline audio 
+  // confirmation for accessibility, logs the interaction for the AI, and 
+  // deploys the 8-second "Undo" toast to prevent technological anxiety.
+  // =========================================================================
   const toggleDevice = (deviceKey, deviceName) => {
     const newState = !deviceStates[deviceKey];
     const previousState = { ...deviceStates };
     
+    // 1. Save state for Graceful Error Recovery
     setLastAction({ previousState, deviceName });
     setDeviceStates(prev => ({ ...prev, [deviceKey]: newState }));
 
+    // 2. Offline Audio Confirmation for Accessibility
+    if ('speechSynthesis' in window) {
+      let statusSpeech = newState ? "ON" : "OFF";
+      if (deviceKey === 'frontDoor') statusSpeech = newState ? "LOCKED" : "UNLOCKED";
+      
+      const speech = new SpeechSynthesisUtterance(`${deviceName} is now ${statusSpeech}`);
+      window.speechSynthesis.speak(speech);
+    }
+
+    // 3. Log the habit for the AI
     const newLogEntry = {
       device: deviceName,
       deviceKey: deviceKey,
@@ -67,11 +85,12 @@ export default function AgeResponsiveSmartHome() {
     };
     setHabitLog(prevLog => [...prevLog, newLogEntry]);
 
+    // 4. Trigger the Undo Toast (8-second timer)
     setShowUndo(true);
     setTimeout(() => {
       setShowUndo(false);
       setLastAction(null);
-    }, 10000);
+    }, 8000); 
   };
 
   const executeUndo = () => {
@@ -82,45 +101,47 @@ export default function AgeResponsiveSmartHome() {
     }
   };
 
-  const toggleSimpleMode = () => {
-    setSettings(prev => ({ ...prev, simpleModeActive: !prev.simpleModeActive }));
+  const changeTemp = (e, amount) => {
+    e.stopPropagation(); // Prevents tapping the temperature from turning the AC off
+    setAcTemp(prev => prev + amount);
   };
 
-  // --------------------------------------------------------
-  // PREDICTIVE AI MODULE (Advanced Pattern Recognition)
-  // --------------------------------------------------------
+
+  // =========================================================================
+  //  LAYER 3: PREDICTIVE AI MODULE (Pattern Recognition Engine)
+  //  This is our localized heuristic AI. It scans the 
+  // user's habit log to calculate their most frequent action for the current 
+  // time of day. It dynamically prepares the suggestion banner to reduce 
+  // cognitive load, without ever sending data to an external server.
+  // =========================================================================
   const getPredictiveSuggestion = () => {
-    const currentHour = currentTime.getHours();
+    const currentHour = new Date().getHours();
     
-    // 1. Find all actions (ON or OFF) that happened in this hour historically
+    // Filter history for the current hour
     const habitsThisHour = habitLog.filter(log => {
-      const logHour = new Date(log.time).getHours();
-      return logHour === currentHour;
+      return new Date(log.time).getHours() === currentHour;
     });
 
     if (habitsThisHour.length === 0) return null;
 
-    // 2. Count them to find the true "pattern" (the most frequent action)
+    // Calculate the most frequent action
     const frequency = {};
     habitsThisHour.forEach(log => {
       const patternKey = `${log.deviceKey}|${log.state}|${log.device}`;
       frequency[patternKey] = (frequency[patternKey] || 0) + 1;
     });
 
-    // 3. Identify the most repeated action for this specific time period
     const topPattern = Object.keys(frequency).reduce((a, b) => frequency[a] > frequency[b] ? a : b);
     const [deviceKey, expectedState, deviceName] = topPattern.split('|');
 
-    // 4. Check if the device needs to be changed to match the pattern
     const isCurrentlyOn = deviceStates[deviceKey];
     const needsToTurnOn = expectedState === "ON" && !isCurrentlyOn;
     const needsToTurnOff = expectedState === "OFF" && isCurrentlyOn;
 
     if (needsToTurnOn || needsToTurnOff) {
-      // Make the phrasing context-aware (lock vs light)
       let actionWord = expectedState === "ON" ? "turn on" : "turn off";
-      if (deviceKey === 'frontDoorLock') {
-         actionWord = expectedState === "ON" ? "unlock" : "lock";
+      if (deviceKey === 'frontDoor') {
+         actionWord = expectedState === "ON" ? "lock" : "unlock";
       }
 
       return {
@@ -131,31 +152,31 @@ export default function AgeResponsiveSmartHome() {
     
     return null; 
   };
+
   const aiSuggestion = getPredictiveSuggestion();
 
-  // Dynamic Greeting Logic
-  const hour = currentTime.getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const timeString = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // --------------------------------------------------------
-  // PRESENTATION LAYER 
-  // --------------------------------------------------------
+  // =========================================================================
+  //  LAYER 4: THE PRESENTATION LAYER (Age-Responsive Interface)
+  //  This renders the visual UI based on our accessibility 
+  // guidelines. It applies Fitts's Law through massive touch targets and utilizes 
+  // the Gestalt Principle of Proximity by flattening the navigation into a 
+  // single, scroll-free layout, completely eliminating deep menus.
+  // =========================================================================
   return (
-    <div className={`app-wrapper ${settings.simpleModeActive ? 'simple-mode' : 'advanced-mode'}`}>
+    <div className="app-wrapper">
       
-      {/* Top Header & Settings */}
-      <header className="app-header">
-        <div className="greeting-container">
-          <h2>{greeting}.</h2>
-          <p className="time-display">It is currently {timeString}.</p>
-        </div>
-        <button className="settings-toggle" onClick={toggleSimpleMode}>
-          {settings.simpleModeActive ? 'Standard View' : 'Simple View'}
-        </button>
+      {/* Category Filters */}
+      <header className="filter-scroll">
+        <button className="filter-pill active">Everything</button>
+        <button className="filter-pill">Living Room</button>
+        <button className="filter-pill">Bedroom</button>
+        <button className="filter-pill">Kitchen</button>
+        <button className="filter-pill">Front Door</button>
       </header>
 
       <main className="dashboard-content">
+        
         {/* Predictive AI Banner */}
         {aiSuggestion && (
           <div className="ai-banner" onClick={aiSuggestion.action}>
@@ -166,52 +187,100 @@ export default function AgeResponsiveSmartHome() {
             </div>
           </div>
         )}
-
-        {/* Section Headers organize the space */}
-        <h3 className="section-title">Home Controls</h3>
         
         <div className="device-grid">
-          {/* Lighting */}
-          <button 
-            className={`device-card ${deviceStates.livingRoomLight ? 'active' : 'inactive'}`}
-            onClick={() => toggleDevice('livingRoomLight', 'Living Room Light')}
-          >
+          
+          {/* Living Room Lamp */}
+          <div className={`device-card ${deviceStates.livingRoomLamp ? 'active' : 'inactive'}`} onClick={() => toggleDevice('livingRoomLamp', 'Living Room Lamp')}>
+            <div className="card-icon">💡</div>
             <div className="card-info">
-              <span className="device-title">Living Room Light</span>
-              <span className="device-category">Lighting</span>
+              <span className="device-title">Living Room Lamp</span>
+              <span className="device-category">Living Room</span>
             </div>
-            <span className="device-status">
-              {deviceStates.livingRoomLight ? 'ON' : 'OFF'}
-            </span>
-          </button>
+            <div className="status-badge">{deviceStates.livingRoomLamp ? 'ON' : 'OFF'}</div>
+          </div>
 
-          {/* Climate */}
-          <button 
-            className={`device-card ${deviceStates.bedroomFan ? 'active' : 'inactive'}`}
-            onClick={() => toggleDevice('bedroomFan', 'Bedroom Fan')}
-          >
+          {/* Television */}
+          <div className={`device-card ${deviceStates.television ? 'active' : 'inactive'}`} onClick={() => toggleDevice('television', 'Television')}>
+            <div className="card-icon">📺</div>
+            <div className="card-info">
+              <span className="device-title">Television</span>
+              <span className="device-category">Living Room</span>
+            </div>
+            <div className="status-badge">{deviceStates.television ? 'ON' : 'OFF'}</div>
+          </div>
+
+          {/* Expanding Air Conditioner */}
+          <div className={`device-card ${deviceStates.airConditioner ? 'active' : 'inactive'}`} onClick={() => toggleDevice('airConditioner', 'Air Conditioner')}>
+            <div className="card-main">
+              <div className="card-icon">❄️</div>
+              <div className="card-info">
+                <span className="device-title">Air Conditioner</span>
+                <span className="device-category">Living Room</span>
+              </div>
+              <div className="status-badge">{deviceStates.airConditioner ? 'ON' : 'OFF'}</div>
+            </div>
+            
+            {/* Expanded Temperature Controls (Only shows when AC is ON) */}
+            {deviceStates.airConditioner && (
+              <div className="card-expanded" onClick={(e) => e.stopPropagation()}>
+                <button className="temp-btn" onClick={(e) => changeTemp(e, -1)}>–</button>
+                <span className="temp-display">{acTemp}°C</span>
+                <button className="temp-btn" onClick={(e) => changeTemp(e, 1)}>+</button>
+              </div>
+            )}
+          </div>
+
+          {/* Bedside Lamp */}
+          <div className={`device-card ${deviceStates.bedsideLamp ? 'active' : 'inactive'}`} onClick={() => toggleDevice('bedsideLamp', 'Bedside Lamp')}>
+            <div className="card-icon">🪔</div>
+            <div className="card-info">
+              <span className="device-title">Bedside Lamp</span>
+              <span className="device-category">Bedroom</span>
+            </div>
+            <div className="status-badge">{deviceStates.bedsideLamp ? 'ON' : 'OFF'}</div>
+          </div>
+
+          {/* Bedroom Fan */}
+          <div className={`device-card ${deviceStates.bedroomFan ? 'active' : 'inactive'}`} onClick={() => toggleDevice('bedroomFan', 'Bedroom Fan')}>
+            <div className="card-icon">🌀</div>
             <div className="card-info">
               <span className="device-title">Bedroom Fan</span>
-              <span className="device-category">Climate</span>
+              <span className="device-category">Bedroom</span>
             </div>
-            <span className="device-status">
-              {deviceStates.bedroomFan ? 'ON' : 'OFF'}
-            </span>
-          </button>
+            <div className="status-badge">{deviceStates.bedroomFan ? 'ON' : 'OFF'}</div>
+          </div>
 
-          {/* Security */}
-          <button 
-            className={`device-card ${deviceStates.frontDoorLock ? 'active' : 'inactive'}`}
-            onClick={() => toggleDevice('frontDoorLock', 'Front Door Lock')}
-          >
+          {/* Kitchen Lights */}
+          <div className={`device-card ${deviceStates.kitchenLights ? 'active' : 'inactive'}`} onClick={() => toggleDevice('kitchenLights', 'Kitchen Lights')}>
+            <div className="card-icon">💡</div>
+            <div className="card-info">
+              <span className="device-title">Kitchen Lights</span>
+              <span className="device-category">Kitchen</span>
+            </div>
+            <div className="status-badge">{deviceStates.kitchenLights ? 'ON' : 'OFF'}</div>
+          </div>
+
+          {/* Kettle */}
+          <div className={`device-card ${deviceStates.kettle ? 'active' : 'inactive'}`} onClick={() => toggleDevice('kettle', 'Kettle')}>
+            <div className="card-icon">☕</div>
+            <div className="card-info">
+              <span className="device-title">Kettle</span>
+              <span className="device-category">Kitchen</span>
+            </div>
+            <div className="status-badge">{deviceStates.kettle ? 'ON' : 'OFF'}</div>
+          </div>
+
+          {/* Front Door */}
+          <div className={`device-card ${deviceStates.frontDoor ? 'active' : 'inactive'}`} onClick={() => toggleDevice('frontDoor', 'Front Door')}>
+            <div className="card-icon">🔒</div>
             <div className="card-info">
               <span className="device-title">Front Door</span>
-              <span className="device-category">Security</span>
+              <span className="device-category">Front Door</span>
             </div>
-            <span className="device-status">
-              {deviceStates.frontDoorLock ? 'UNLOCKED' : 'LOCKED'}
-            </span>
-          </button>
+            <div className="status-badge">{deviceStates.frontDoor ? 'LOCKED' : 'UNLOCKED'}</div>
+          </div>
+
         </div>
       </main>
 
