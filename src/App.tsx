@@ -162,7 +162,7 @@ export default function AgeResponsiveSmartHome() {
             <div className="ai-icon">✨</div>
             <div className="ai-text">
               <strong>Suggestion</strong>
-              <span>{aiSuggestion.message} Tap to turn on.</span>
+              <span>{aiSuggestion.message} Tap to apply.</span>
             </div>
           </div>
         )}
