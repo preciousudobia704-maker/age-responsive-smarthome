@@ -71,7 +71,7 @@ export default function AgeResponsiveSmartHome() {
     setTimeout(() => {
       setShowUndo(false);
       setLastAction(null);
-    }, 5000);
+    }, 10000);
   };
 
   const executeUndo = () => {
